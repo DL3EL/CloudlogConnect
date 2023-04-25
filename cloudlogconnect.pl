@@ -6,6 +6,10 @@ my $verbose=0;
 
 my $rigFreq=0;
 my $rigOldFreq=1;
+my $rigMHz=0;
+my $rigOldMHz=1;
+my $script_call = "";
+
 
 my $rigMode="MATCH";
 my $rigOldMode="NO MATCH";
@@ -51,13 +55,12 @@ my $debug;
 	}
 	print "Total args passed to $scriptname : $total \n" if $verbose;
 
-## Bei Änderungen des Pfades bitte auch /etc/logrotate.d/rsyslog anpassen
 	my $confdatei = $path . $scriptname . ".conf";
 	open(INPUT, $confdatei) or die "Fehler bei Eingabedatei: $confdatei\n";
 		undef $/;#	
 		$data = <INPUT>;
 	close INPUT;
-	print "Datei $confdatei erfolgreich geöffnet\n" if $verbose;
+	print "Datei $confdatei erfolgreich geöffnet ($path)\n" if $verbose;
 	@array = split (/\n/, $data);
 	$nn=0;
 	foreach $entry (@array) {
@@ -105,6 +108,14 @@ my $debug;
 	    if (($rigFreq ne $rigOldFreq) || ($rigMode ne $rigOldMode)) {
 			# rig freq or mode changed, update Cloudlog
 			printf "to Cloudlog rigFreq:%s rigMode:%s ($min10)\n",$rigFreq,$rigMode if $verbose;	
+			$rigMHz = (length($rigFreq) < 8)? substr($rigFreq,0,1) : substr($rigFreq,0,2);
+			print "$rigMHz : $rigOldMHz\n";
+			if (($rigControlSoftware eq "fldigi") && ($rigMHz ne $rigOldMHz)) {
+				$script_call = $path . "sparksdr_cli.pl mhz=" . $rigMHz;
+				print "$script_call\n" if $verbose;
+				`$script_call`;
+			}	
+			$rigOldMHz=$rigMHz;
 			$rigOldFreq=$rigFreq;
 			$rigOldMode=$rigMode;
 			send_info_to_cloudlog();
