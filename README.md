@@ -4,5 +4,5 @@ There is no need to use FLRig or any other special services on the target machin
 
 All parameters are explained in the .conf file
 
-Script is outdated, for FLDigi use FLDigi_Log and for SparkSDR use SparkSDR_Log. Same features, plus logging.
+Script is outdated for SparkSDR, please use SparkSDR_Log. Same features, plus logging.
 
